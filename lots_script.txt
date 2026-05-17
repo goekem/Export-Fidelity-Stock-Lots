@@ -1,0 +1,69 @@
+var stockInfo = [];
+var header_array = [];
+var stockSymbols = [];
+const separator = '\t';
+
+function arrayToCSV(arr) {
+  return arr.map(row => 
+    row.map(field => {
+      const str = String(field);
+      // Escape quotes and wrap in quotes if it contains delimiter, quote, or newline
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    }).join(',')
+  ).join('\n');
+}
+
+function downloadCSV(csv, filename) {
+  const csvFile = new Blob([csv], { type: "text/csv" });
+  const downloadLink = document.createElement("a");
+  downloadLink.download = filename;
+  downloadLink.href = window.URL.createObjectURL(csvFile);
+  downloadLink.style.display = "none";
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+}
+
+function expandRows() {
+  header_array = Array.from(document.getElementsByClassName('ag-row'));
+  const last = header_array.length / 2 - 2;
+  for (let r = 2; r <= last; r++) {
+    stockSymbols.push(header_array[r].innerText.split('\n')[0]);
+    header_array[r].click();
+  }
+}
+
+function assembleTable(lots_array) {
+  for (i = 0; i < lots_array.length; i++) {
+    // Split into individual lots
+    lots = lots_array[i].children[1].innerText.split('\n');
+    
+    // Split the lots into data and store in stockInfo
+    for (j = 0; j < lots.length; j++) {
+      var record = lots[j].trim().split('\t');
+      record.unshift(stockSymbols[i]);
+      stockInfo.push(record);
+    }
+  }
+}
+
+function main() {
+  // Get the lot elements
+  lots_array = Array.from(document.getElementsByClassName('posweb-purchase-history'));
+  
+  // Build
+  var col_headers = lots_array[0].children[0].innerText.trim().split('\t');
+  col_headers.unshift('Symbol');
+  stockInfo.push(col_headers);
+  assembleTable(lots_array);
+  
+  // Convert
+  const csvString = arrayToCSV(stockInfo);
+  
+  // Generate and download
+  downloadCSV(csvString, "lots.csv");
+  console.log('All done.');
+}
