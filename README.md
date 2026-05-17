@@ -10,3 +10,4 @@ Exports stock lots from the positions page of a fidelity account as a CSV.
 7. Type main() and hit enter
 
 If 'Cash' is not on top, the top position will be excluded. I might fix this in a future version.
+Note: I am by no means a JavaScript dev and this is probably a rough implementation at best.
