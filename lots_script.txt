@@ -30,14 +30,17 @@ function downloadCSV(csv, filename) {
 function expandRows() {
   header_array = Array.from(document.getElementsByClassName('ag-row'));
   const last = header_array.length / 2 - 2;
-  for (let r = 2; r <= last; r++) {
-    stockSymbols.push(header_array[r].innerText.split('\n')[0]);
+  for (let r = 1; r <= last; r++) {
+    var sym = header_array[r].innerText.split('\n')[0];
+    if (sym == "CASH") { return; }
+    stockSymbols.push(sym);
     header_array[r].click();
   }
 }
 
 function assembleTable(lots_array) {
   for (i = 0; i < lots_array.length; i++) {
+    if (stockSymbols[i] == "CASH") { return; }
     // Split into individual lots
     lots = lots_array[i].children[1].innerText.split('\n');
     
